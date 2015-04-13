@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [[ -z $1 ]]
+then
+    echo "Usage: $0 name"
+    exit 0
+fi
+
+ps aux | grep $1 | grep -v grep | grep -v $0 | awk '{proc[NR]=$2} END{for(p in proc){system("kill -9 " proc[p])}}'
