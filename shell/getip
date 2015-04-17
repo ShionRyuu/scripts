@@ -1,0 +1,5 @@
+#!/bin/sh
+
+ifconfig -a | grep inet | grep -v 127.0.0.1 | grep -v inet6 | awk '{print $2}' | tr -d "addr:"
+
+ifconfig | sed -n '2s/^[^:]*:\([0-9.]\{7,15\}\) .*/\1/p'

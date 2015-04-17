@@ -1,0 +1,53 @@
+#!/bin/sh
+
+echo "Debian/Ubuntu VPS 安装VPN(PPTP)"
+echo "如果脚本无效或者运行过程中出现错误，请自行解决"
+
+# 安装pptpd
+apt-get update
+apt-get upgrade
+apt-get install pptpd
+
+# 分配IP范围
+sed -i 's/^#localip 192.168.0.1/localip 192.168.0.1/g;s/^#remoteip 192.168.0.234-238,192.168.0.245/remoteip 192.168.0.10-30/g' /etc/pptpd.conf
+
+# 设置DNS
+cat >> /etc/ppp/pptpd-options <<EOF
+ms-dns 8.8.8.8
+ms-dns 8.8.4.4
+EOF
+
+# or
+#sed -i 's/^#ms-dns 10.0.0.1/ms-dns 8.8.8.8/g;s/^#ms-dns 10.0.0.2/ms-dns 8.8.4.4/g' /etc/ppp/pptpd-options
+
+# 添加帐号密码
+read -p "请输入VPN帐号：" username
+read -p "请输入VPN密码：" password
+cat >> /etc/ppp/chap-secrets <<EOF
+${username} pptpd ${password} *
+EOF
+
+# 打开IP转发
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+sysctl -p
+
+if [[ $? != 0 ]]
+then
+  rm -f /sbin/sysctl
+  ln -s /bin/true /sbin/sysctl
+  sysctl -p
+fi
+
+# 设置iptables NAT转发
+sed -i '/exit 0/i\iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE' /etc/rc.local
+
+# 如果上面的命令报错,那么可以尝试以下的命令，其中xxx.xxx.xxx.xxx代表你的VPS外网ip地址
+#sed -i '/exit 0/i\iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j SNAT --to-source xxx.xxx.xxx.xxx' /etc/rc.local
+
+# or
+#iptables -t nat -I POSTROUTING -j MASQUERADE
+
+# 重启PPTP服务执行
+pptpd restart # or service pptpd restart
+
+echo "Done!"
