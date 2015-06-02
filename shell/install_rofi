@@ -1,8 +1,13 @@
 #!/bin/sh
 
+# Name: install_rofi
+# Author: Shion Ryuu<shionryuu@outlook.com>
+# This is a script used to install rofi on Ubuntu.
+# Test under Ubuntu 14.04 only.
+
 apt-get update
 apt-get upgrade -y --show-upgraded
-apt-get install -y sudo apt-get install libxft-dev libxinerama-dev libpango1.0-dev
+apt-get install -y libxft-dev libxinerama-dev libpango1.0-dev
 
 wget -c https://github.com/DaveDavenport/rofi/releases/download/0.15.4/rofi-0.15.4.tar.gz
 tar -xzvf rofi-0.15.4.tar.gz
