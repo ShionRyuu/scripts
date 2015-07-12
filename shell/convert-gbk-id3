@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# convert id3 encoding from gbk to unicode, python-mutagen is needed
+
+if which mid3iconv >/dev/null 2>&1; then
+	find . -name "*mp3" -print0 | xargs -0 mid3iconv -e gbk -d
+fi
