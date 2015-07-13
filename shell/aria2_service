@@ -1,0 +1,83 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          Aria2
+# Required-Start:    
+# Required-Stop:     
+# Should-Start:      autofs $network
+# Should-Stop:       autofs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Aria2
+# Description:       Start the Aria2 service
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+NAME=aria2
+DESC="Aria2"
+DAEMON=/usr/bin/aria2c
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+aria2_start () {
+    log_daemon_msg "Starting $DESC" "$NAME"
+    if [ -e /dev/sda4 ]
+    then
+        mount /dev/sda4 /media
+    elif [ -e /dev/sdb4 ]
+    then
+        mount /dev/sdb4 /media
+    fi
+    aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all --dir=/media/Download -c -D
+    log_end_msg $?
+}
+
+aria2_stop () {
+    log_daemon_msg "Stopping $DESC" "$NAME"
+    if [ -e /dev/sda4 ]
+    then
+        umount /media
+    fi
+    killall aria2c
+    log_end_msg $?
+}
+
+# note to self: don't call the non-standard args for this in
+# {post,pre}{inst,rm} scripts since users are not forced to upgrade
+# /etc/init.d/mpd when mpd is updated
+case "$1" in
+    start)
+        aria2_start
+        ;;
+    stop)
+        aria2_stop
+        ;;
+    status)
+    	status_of_proc $DAEMON $NAME
+	;;
+    restart|force-reload)
+        aria2_stop
+        aria2_start
+        ;;
+    force-start)
+        aria2_start
+        ;;
+    force-restart)
+        aria2_stop
+        aria2_start
+        ;;
+    force-reload)
+	aria2_stop
+	aria2_start
+	;;
+    *)
+        echo "Usage: $0 {start|start-create-db|stop|restart|force-reload}"
+        exit 2
+        ;;
+esac

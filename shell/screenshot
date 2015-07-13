@@ -1,0 +1,10 @@
+#!/bin/bash
+
+NOW=`date '+%Y%m%d'`
+FNAME=fvwm${NOW}
+EXT=jpg
+
+cd ${HOME}
+sleep 1
+import -window root ${FNAME}.${EXT}
+convert -resize 400x300 ${FNAME}.${EXT} fvwm${NOW}_thumb.${EXT}
