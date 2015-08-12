@@ -1,0 +1,20 @@
+#!/bin/sh
+
+path=${1:-.}
+dir=$(dirname "$0")
+
+echo "format file in $path"
+
+files=`find $path -name "*.*" -type f`
+
+for file in $files; do
+  ext=${file##*.}
+  case $ext in
+    c|cpp|h)
+      # astyle --style=allman --add-brackets --pad-oper --unpad-paren --pad-header --break-blocks --align-pointer=type 
+      astyle --options="$dir/formatter.conf" $file
+      ;;
+    *)
+      ;;
+  esac
+done
