@@ -8,10 +8,10 @@ PIDOF=`pidof gpg-agent`
 RETVAL=$?
 
 if [ "$RETVAL" -eq 1 ]; then
-        echo "Starting gpg-agent daemon."
-        eval `gpg-agent --daemon `
+    echo "Starting gpg-agent daemon."
+    eval `gpg-agent --daemon `
 else
-        echo "Daemon gpg-agent already running."
+    echo "Daemon gpg-agent already running."
 fi
 
 # Nasty way to find gpg-agent's socket file...
